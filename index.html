@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+
+<meta charset="UTF-8">
+<title>Borrow System</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<!-- LOGIN -->
+
+<div id="login" class="page">
+
+<div class="login-box">
+
+<h2>Login</h2>
+
+<input type="text" placeholder="Username">
+<input type="password" placeholder="Password">
+
+<button onclick="showPage('dashboard')">Login</button>
+
+</div>
+
+</div>
+
+<!-- DASHBOARD -->
+
+<div id="dashboard" class="page">
+
+<div class="topbar">
+Borrow Equipment System
+</div>
+
+<h2>เมนู</h2>
+
+<button onclick="showPage('borrow')">ยืมอุปกรณ์</button>
+<button onclick="showPage('return')">คืนอุปกรณ์</button>
+<button onclick="showPage('equipment')">รายการอุปกรณ์</button>
+<button onclick="showPage('history')">ประวัติ</button>
+
+</div>
+
+<!-- BORROW -->
+
+<div id="borrow" class="page">
+
+<div class="topbar">
+ยืมอุปกรณ์
+</div>
+
+<input type="text" id="borrower" placeholder="ชื่อผู้ยืม">
+
+<select id="item">
+
+<option>T.016397</option>
+<option>T.016398</option>
+<option>SOLAR01</option>
+<option>AM.36971</option>
+
+</select>
+
+<br>
+
+<button onclick="borrowItem()">ยืม</button>
+<button onclick="showPage('dashboard')">กลับ</button>
+
+</div>
+
+<!-- RETURN -->
+
+<div id="return" class="page">
+
+<div class="topbar">
+คืนอุปกรณ์
+</div>
+
+<input type="text" placeholder="รหัสอุปกรณ์">
+
+<br>
+
+<button>คืน</button>
+<button onclick="showPage('dashboard')">กลับ</button>
+
+</div>
+
+<!-- EQUIPMENT -->
+
+<div id="equipment" class="page">
+
+<div class="topbar">
+รายการอุปกรณ์
+</div>
+
+<table>
+
+<tr>
+<th>รหัส</th>
+<th>สถานะ</th>
+</tr>
+
+<tr>
+<td>T.016397</td>
+<td>ว่าง</td>
+</tr>
+
+<tr>
+<td>SOLAR01</td>
+<td>ถูกยืม</td>
+</tr>
+
+</table>
+
+<button onclick="showPage('dashboard')">กลับ</button>
+
+</div>
+
+<!-- HISTORY -->
+
+<div id="history" class="page">
+
+<div class="topbar">
+ประวัติการยืม
+</div>
+
+<table>
+
+<tr>
+<th>ผู้ยืม</th>
+<th>อุปกรณ์</th>
+<th>วันที่</th>
+</tr>
+
+<tr>
+<td>สมชาย</td>
+<td>T.016397</td>
+<td>12/03/2026</td>
+</tr>
+
+</table>
+
+<button onclick="showPage('dashboard')">กลับ</button>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
