@@ -35,16 +35,18 @@
 
     <div id="dashboard" class="page">
 
-        <div class="topbar">
-            Borrow Equipment System
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-overlay">
+                <h1>EESH Borrowing System (EBS)</h1>
+            </div>
         </div>
 
-        <h2>เมนู</h2>
+        <!-- ORANGE BAR -->
+        <div class="orange-bar"></div>
 
-        <!-- DASHBOARD STATS -->
-
+        <!-- STATS -->
         <div class="stats">
-
             <div class="stat-card">
                 <h3>21</h3>
                 <p>อุปกรณ์ทั้งหมด</p>
@@ -59,9 +61,11 @@
                 <h3>16</h3>
                 <p>อุปกรณ์ว่าง</p>
             </div>
-
         </div>
 
+        <h3 class="menu-title">Menu</h3>
+
+        <!-- MENU -->
         <div class="menu-cards">
 
             <button class="card-btn" onclick="showPage('borrow')">
@@ -80,63 +84,98 @@
             </button>
 
             <button class="card-btn" onclick="showPage('history')">
-                <i class="fa-solid fa-clock-rotate-left"></i>
+                <i class="fa-solid fa-clipboard"></i>
                 <span>ประวัติ</span>
             </button>
 
         </div>
 
 
-
-
     </div>
 
     <!-- BORROW -->
-
     <div id="borrow" class="page">
 
         <div class="topbar">
             ยืมอุปกรณ์
         </div>
-        <input type="date" id="borrowDate">
-        <input type="text" id="borrower" placeholder="ชื่อผู้ยืม">
 
-        <select id="item">
+        <div class="borrow-container">
 
-            <option>T.016397</option>
-            <option>T.016398</option>
-            <option>SOLAR01</option>
-            <option>AM.36971</option>
+            <!-- DATE -->
+            <input type="date" id="borrowDate">
 
-        </select>
+            <!-- SELECT ITEM -->
+            <select id="item">
+                <optgroup label="เครื่องวัดความสว่างของแสง">
+                    <option>เครื่องวัดความสว่างของแสง - T.016397</option>
+                    <option>เครื่องวัดความสว่างของแสง - T.016398</option>
+                    <option>เครื่องวัดความสว่างของแสง - T.016399</option>
+                    <option>เครื่องวัดความสว่างของแสง - T.016427</option>
+                    <option>เครื่องวัดความสว่างของแสง - T.016431</option>
+                    <option>เครื่องวัดความสว่างของแสง - T.016437</option>
+                    <option>เครื่องวัดความสว่างของแสง - T.016454</option>
+                    <option>เครื่องวัดความสว่างของแสง - T.016478</option>
+                    <option>เครื่องวัดความสว่างของแสง - T.016484</option>
+                    <option>เครื่องวัดความสว่างของแสง - T.016488</option>
+                </optgroup>
 
-        <br>
+                <optgroup label="เครื่องวัดอุณหภูมิและความชื้น">
+                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.36971</option>
+                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.36974</option>
+                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.36975</option>
+                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.36976</option>
+                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.54261</option>
+                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.54262</option>
+                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.57878</option>
+                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.57879</option>
+                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.57881</option>
+                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.87874</option>
+                </optgroup>
+            </select>
 
-        <button onclick="borrowItem()">ยืม</button>
-        <button class="back-btn" onclick="showPage('dashboard')">กลับ</button>
+            <div class="preview-box">
+                <img id="previewImg" src="เครื่องวัดความสว่างของแสง.jpg">
+            </div>
 
+            <div class="item-info">
+                <p id="itemName"><strong>ชื่อ:</strong> -</p>
+                <p id="itemCode"><strong>รหัส:</strong> -</p>
+                <p id="itemStatus" class="status-free">สถานะ: ว่าง</p>
+            </div>
 
+            <button onclick="borrowItem()">ยืม</button>
+            <button class="back-btn" onclick="showPage('dashboard')">กลับ</button>
+
+        </div>
     </div>
 
     <!-- RETURN -->
-
     <div id="return" class="page">
 
         <div class="topbar">
             คืนอุปกรณ์
         </div>
 
-        <input type="text" placeholder="รหัสอุปกรณ์">
+        <div class="borrow-container">
 
-        <br>
+            <!-- วันที่ยืม -->
+            <input type="date" id="returnStartDate">
 
-        <button>คืน</button>
-        <button class="back-btn" onclick="showPage('dashboard')">กลับ</button>
+            <!-- วันที่คืน -->
+            <input type="date" id="returnEndDate">
 
+            <!-- เลือกอุปกรณ์ -->
+            <select id="returnItem"></select>
+
+            <p class="hint">* แสดงเฉพาะอุปกรณ์ที่กำลังถูกยืม</p>
+
+            <button onclick="returnItem()">คืนอุปกรณ์</button>
+            <button class="back-btn" onclick="showPage('dashboard')">กลับ</button>
+
+        </div>
 
     </div>
-
-    <!-- EQUIPMENT -->
 
     <div id="equipment" class="page">
 
@@ -145,37 +184,29 @@
         </div>
 
         <!-- SEARCH -->
-
-        <input type="text" id="searchInput" placeholder="ค้นหาอุปกรณ์..." onkeyup="searchItem()">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="ค้นหาอุปกรณ์..." onkeyup="searchItem()">
+            <div class="search-icon">🔍</div>
+        </div>
 
         <table>
 
-            <tr>
-                <th>รหัส</th>
-                <th>สถานะ</th>
-                <th>ผู้ยืม</th>
-                <th>วันที่</th>
-            </tr>
+            <thead>
+                <tr>
+                    <th>อุปกรณ์</th>
+                    <th>ชื่อ</th>
+                    <th>รหัสอุปกรณ์</th>
+                    <th>สถานะ</th>
+                    <th>ชื่อผู้ยืม</th>
+                    <th>วันที่</th>
+                </tr>
+            </thead>
 
-            <tr>
-                <td>T.016397</td>
-                <td class="status-free">ว่าง</td>
-                <td>-</td>
-                <td>-</td>
-            </tr>
-
-            <tr>
-                <td>SOLAR01</td>
-                <td class="status-borrow">ถูกยืม</td>
-                <td>สมชาย</td>
-                <td>12/03/2026</td>
-            </tr>
+            <tbody id="equipmentTable"></tbody>
 
         </table>
 
-
         <button class="back-btn" onclick="showPage('dashboard')">กลับ</button>
-
 
     </div>
 
@@ -209,6 +240,26 @@
     </div>
 
     <script src="script.js"></script>
+
+    <!-- SUCCESS POPUP -->
+    <div id="successPopup" class="popup-overlay">
+
+        <div class="popup-box">
+            <div class="check-icon">
+                <i class="fa-solid fa-check"></i>
+            </div>
+
+            <p id="popupMessage">สำเร็จ</p>
+        </div>
+
+    </div>
+
+    <div id="errorPopup" class="popup-overlay">
+        <div class="popup-box error">
+            <div class="icon error-icon">✖</div>
+            <p>อุปกรณ์นี้ถูกยืมอยู่</p>
+        </div>
+    </div>
 
 </body>
 
