@@ -22,10 +22,42 @@
 
             <h2>Login</h2>
 
-            <input type="text" placeholder="Username">
-            <input type="password" placeholder="Password">
+            <input type="text" id="loginUsername" placeholder="Username">
+            <input type="password" id="loginPassword" placeholder="Password">
 
-            <button onclick="showPage('dashboard')">Login</button>
+            <button onclick="login()">Login</button>
+
+            <p style="margin-top:15px;">
+                ยังไม่มีบัญชีใช่ไหม?
+                <span style="color:#ff7a00; cursor:pointer;" onclick="showPage('register')">
+                    ลงทะเบียน
+                </span>
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- REGISTER -->
+    <div id="register" class="page">
+
+        <div class="login-box">
+
+            <h2>ลงทะเบียน</h2>
+
+            <input type="text" id="regUsername" placeholder="ชื่อผู้ใช้ (username)">
+            <input type="text" id="regDepartment" placeholder="หน่วยงาน">
+            <input type="password" id="regPassword" placeholder="รหัสผ่าน">
+            <input type="password" id="regConfirmPassword" placeholder="ยืนยันรหัสผ่าน">
+
+            <button onclick="register()">สมัครสมาชิก</button>
+
+            <p style="margin-top:15px;">
+                มีบัญชีแล้ว?
+                <span style="color:#ff7a00; cursor:pointer;" onclick="showPage('login')">
+                    เข้าสู่ระบบ
+                </span>
+            </p>
 
         </div>
 
@@ -48,24 +80,24 @@
         <!-- STATS -->
         <div class="stats">
             <div class="stat-card">
-                <h3>21</h3>
+                <h3 id="totalCount">0</h3>
                 <p>อุปกรณ์ทั้งหมด</p>
             </div>
 
             <div class="stat-card">
-                <h3>5</h3>
+                <h3 id="borrowCount">0</h3>
                 <p>กำลังถูกยืม</p>
             </div>
 
             <div class="stat-card">
-                <h3>16</h3>
+                <h3 id="freeCount">0</h3>
                 <p>อุปกรณ์ว่าง</p>
             </div>
         </div>
 
+        <!-- ✅ ย้าย Menu มาไว้ตรงนี้ -->
         <h3 class="menu-title">Menu</h3>
 
-        <!-- MENU -->
         <div class="menu-cards">
 
             <button class="card-btn" onclick="showPage('borrow')">
@@ -90,6 +122,9 @@
 
         </div>
 
+        <button onclick="logout()" style="float:right; margin:10px;">
+            Logout
+        </button>
 
     </div>
 
@@ -101,6 +136,8 @@
         </div>
 
         <div class="borrow-container">
+
+            <input type="text" id="borrowName" placeholder="ชื่อผู้ยืม">
 
             <!-- DATE -->
             <input type="date" id="borrowDate">
@@ -219,19 +256,16 @@
         </div>
 
         <table>
-
-            <tr>
-                <th>ผู้ยืม</th>
-                <th>อุปกรณ์</th>
-                <th>วันที่</th>
-            </tr>
-
-            <tr>
-                <td>สมชาย</td>
-                <td>T.016397</td>
-                <td>12/03/2026</td>
-            </tr>
-
+            <thead>
+                <tr>
+                    <th>ชื่อ</th>
+                    <th>ชื่ออุปกรณ์</th>
+                    <th>รหัส</th>
+                    <th>สถานะ</th>
+                    <th>วันที่</th>
+                </tr>
+            </thead>
+            <tbody id="historyTable"></tbody>
         </table>
 
         <button class="back-btn" onclick="showPage('dashboard')">กลับ</button>

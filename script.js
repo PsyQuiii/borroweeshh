@@ -1,5 +1,16 @@
+let users = JSON.parse(localStorage.getItem("users")) || []
+let currentUser = localStorage.getItem("currentUser") || null
+
+let borrowData = JSON.parse(localStorage.getItem("borrowData")) || {}
+let historyData = JSON.parse(localStorage.getItem("historyData")) || []
+
 // ================== PAGE ==================
 function showPage(page) {
+
+    // 🔥 กันเข้าหน้าอื่นถ้ายังไม่ login
+    if (page !== "login" && page !== "register" && !currentUser) {
+        page = "login"
+    }
 
     document.querySelectorAll(".page").forEach(p => {
         p.style.display = "none"
@@ -12,8 +23,79 @@ function showPage(page) {
     }
 
     if (page === "equipment") {
-        renderEquipment();   // ✅ ตัวเดียวพอ
+        renderEquipment()
     }
+
+    if (page === "history") {
+        renderHistory()
+    }
+
+    if (page === "dashboard") {
+        updateDashboard()
+    }
+
+    if (page === "borrow") {
+        const item = document.getElementById("item");
+        if (item) {
+            item.dispatchEvent(new Event("change"));
+        }
+    }
+}
+
+// ================== LOGIN ==================
+function login() {
+
+    let username = document.getElementById("loginUsername").value
+    let password = document.getElementById("loginPassword").value
+
+    let user = users.find(u => u.username === username && u.password === password)
+
+    if (!user) {
+        alert("Username หรือ Password ไม่ถูกต้อง")
+        return
+    }
+
+    currentUser = username
+    localStorage.setItem("currentUser", currentUser)
+
+    showPage("dashboard")
+}
+
+function logout() {
+    localStorage.removeItem("currentUser")
+    currentUser = null
+    showPage("login")
+}
+
+// ================== REGISTER ==================
+function register() {
+
+    let username = document.getElementById("regUsername").value
+    let department = document.getElementById("regDepartment").value
+    let password = document.getElementById("regPassword").value
+    let confirm = document.getElementById("regConfirmPassword").value
+
+    if (!username || !department || !password || !confirm) {
+        alert("กรุณากรอกข้อมูลให้ครบ")
+        return
+    }
+
+    if (password !== confirm) {
+        alert("รหัสผ่านไม่ตรงกัน")
+        return
+    }
+
+    let exist = users.find(u => u.username === username)
+    if (exist) {
+        alert("มี username นี้แล้ว")
+        return
+    }
+
+    users.push({ username, department, password })
+    localStorage.setItem("users", JSON.stringify(users))
+
+    alert("สมัครสมาชิกสำเร็จ")
+    showPage("login")
 }
 
 // ================== POPUP ==================
@@ -42,7 +124,6 @@ function showErrorPopup(message = "อุปกรณ์ถูกยืมอย
     }, 2000)
 }
 
-let borrowData = {};
 
 // ================== DATABASE ==================
 const equipmentData = {
@@ -72,27 +153,54 @@ const equipmentData = {
     "AM.87874": { name: "เครื่องวัดอุณหภูมิและความชื้น", status: "free", img: "เครื่องวัดอุณหภูมิและความชื้น.jpg" }
 }
 
+
 // ================== BORROW ==================
 function borrowItem() {
 
     let value = document.getElementById("item").value
     let code = value.split(" - ")[1]
+    let name = currentUser
+    let dateInput = document.getElementById("borrowDate").value
+
+    if (!name || !dateInput) {
+        alert("กรุณากรอกข้อมูลให้ครบ")
+        return
+    }
+
+    // ✅ เช็คก่อน
+    let alreadyBorrow = Object.values(borrowData).find(b => b.name === currentUser)
+    if (alreadyBorrow) {
+        alert("คุณมีอุปกรณ์ที่ยืมอยู่แล้ว")
+        return
+    }
 
     if (equipmentData[code].status === "borrow") {
         showErrorPopup()
         return
     }
 
-    let dateInput = document.getElementById("borrowDate").value
-
-    if (!dateInput) {
-        alert("กรุณาเลือกวันที่")
-        return
-    }
-
+    // ✅ ค่อยบันทึก
     equipmentData[code].status = "borrow"
 
+    borrowData[code] = {
+        name: name,
+        date: dateInput
+    }
+
+    historyData.push({
+        borrower: name,
+        itemName: equipmentData[code].name,
+        code: code,
+        status: "ยืม",
+        date: dateInput
+    })
+
+    localStorage.setItem("borrowData", JSON.stringify(borrowData))
+    localStorage.setItem("historyData", JSON.stringify(historyData))
+
     showSuccessPopup("ยืมอุปกรณ์สำเร็จ")
+    updateDashboard()
+    renderEquipment()
 }
 
 // ================== RETURN ==================
@@ -114,9 +222,26 @@ function returnItem() {
 
     equipmentData[code].status = "free"
 
+    // ✅ ดึงชื่อคนยืมเดิม
+    let borrowerName = borrowData[code]?.name || "-"
+
+    // ✅ บันทึก history (คืน)
+    historyData.push({
+        borrower: borrowerName,
+        itemName: equipmentData[code].name,
+        code: code,
+        status: "คืน",
+        date: endDate
+    })
+
+    // ลบข้อมูลการยืม
+    delete borrowData[code]
+
     showSuccessPopup("คืนอุปกรณ์เรียบร้อยแล้ว")
 
-    // ✅ รีเซ็ตค่า select + วันที่
+    updateDashboard()      // ✅ เพิ่ม
+    renderEquipment()      // ✅ เพิ่ม
+
     document.getElementById("returnItem").value = ""
     document.getElementById("returnStartDate").value = ""
     document.getElementById("returnEndDate").value = ""
@@ -143,34 +268,38 @@ function searchItem() {
 }
 
 // ================== PREVIEW ==================
-document.getElementById("item").addEventListener("change", function () {
+const itemSelect = document.getElementById("item");
 
-    let value = this.value
-    let code = value.split(" - ")[1]
+if (itemSelect) {
+    itemSelect.addEventListener("change", function () {
 
-    let data = equipmentData[code]
+        let value = this.value
+        let code = value.split(" - ")[1]
 
-    let img = document.getElementById("previewImg")
-    let nameText = document.getElementById("itemName")
-    let codeText = document.getElementById("itemCode")
-    let statusText = document.getElementById("itemStatus")
+        let data = equipmentData[code]
 
-    if (data) {
+        let img = document.getElementById("previewImg")
+        let nameText = document.getElementById("itemName")
+        let codeText = document.getElementById("itemCode")
+        let statusText = document.getElementById("itemStatus")
 
-        img.src = data.img
+        if (data) {
 
-        nameText.innerHTML = "<strong>ชื่อ:</strong> " + data.name
-        codeText.innerHTML = "<strong>รหัส:</strong> " + code
+            img.src = data.img
 
-        if (data.status === "free") {
-            statusText.innerHTML = "สถานะ: ว่าง"
-            statusText.className = "status-free"
-        } else {
-            statusText.innerHTML = "สถานะ: ถูกยืม"
-            statusText.className = "status-borrow"
+            nameText.innerHTML = "<strong>ชื่อ:</strong> " + data.name
+            codeText.innerHTML = "<strong>รหัส:</strong> " + code
+
+            if (data.status === "free") {
+                statusText.innerHTML = "สถานะ: ว่าง"
+                statusText.className = "status-free"
+            } else {
+                statusText.innerHTML = "สถานะ: ถูกยืม"
+                statusText.className = "status-borrow"
+            }
         }
-    }
-})
+    });
+}
 
 // ================== LOAD RETURN ==================
 function loadBorrowedItems() {
@@ -236,4 +365,83 @@ function renderEquipment() {
     });
 }
 
-renderEquipment();
+// ================== HISTORY ==================
+
+function renderHistory() {
+
+    const tbody = document.getElementById("historyTable")
+    tbody.innerHTML = ""
+
+    historyData.forEach(item => {
+
+        const statusClass = item.status === "ยืม" ? "status-borrow" : "status-free"
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${item.borrower}</td>
+                <td>${item.itemName}</td>
+                <td>${item.code}</td>
+                <td class="${statusClass}">${item.status}</td>
+                <td>${item.date}</td>
+            </tr>
+        `
+    })
+}
+
+function updateDashboard() {
+
+    let total = Object.keys(equipmentData).length
+    let borrow = 0
+    let free = 0
+
+    Object.values(equipmentData).forEach(item => {
+        if (item.status === "borrow") {
+            borrow++
+        } else {
+            free++
+        }
+    })
+
+    document.getElementById("totalCount").innerText = total
+    document.getElementById("borrowCount").innerText = borrow
+    document.getElementById("freeCount").innerText = free
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const itemSelect = document.getElementById("item");
+
+    if (itemSelect) {
+        itemSelect.addEventListener("change", function () {
+
+            let value = this.value
+            let code = value.split(" - ")[1]
+
+            let data = equipmentData[code]
+
+            let img = document.getElementById("previewImg")
+            let nameText = document.getElementById("itemName")
+            let codeText = document.getElementById("itemCode")
+            let statusText = document.getElementById("itemStatus")
+
+            if (data) {
+
+                img.src = data.img
+
+                nameText.innerHTML = "<strong>ชื่อ:</strong> " + data.name
+                codeText.innerHTML = "<strong>รหัส:</strong> " + code
+
+                if (data.status === "free") {
+                    statusText.innerHTML = "สถานะ: ว่าง"
+                    statusText.className = "status-free"
+                } else {
+                    statusText.innerHTML = "สถานะ: ถูกยืม"
+                    statusText.className = "status-borrow"
+                }
+            }
+        });
+    }
+
+})
+
+showPage("login");
