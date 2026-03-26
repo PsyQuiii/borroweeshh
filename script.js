@@ -161,7 +161,7 @@ function borrowItem() {
     let code = value.split(" - ")[1]
     let name = currentUser
     let dateInput = document.getElementById("borrowDate").value
-
+    let returnDate = document.getElementById("returnDate").value
     if (!name || !dateInput) {
         alert("กรุณากรอกข้อมูลให้ครบ")
         return
@@ -184,8 +184,10 @@ function borrowItem() {
 
     borrowData[code] = {
         name: name,
-        date: dateInput
+        date: dateInput,
+        returnDate: returnDate
     }
+
 
     historyData.push({
         borrower: name,
@@ -342,26 +344,32 @@ function renderEquipment() {
         let status = item.status;
         let borrower = "-";
         let date = "-";
+        let returnDate = "-";
 
         if (borrow) {
             status = "borrow";
             borrower = borrow.name;
             date = borrow.date;
+            returnDate = borrow.returnDate || "-";
         }
+
 
         const statusText = status === "free" ? "ว่าง" : "ถูกยืม";
         const statusClass = status === "free" ? "status-free" : "status-borrow";
 
         tbody.innerHTML += `
-            <tr>
-                <td><img src="${item.img}" class="item-img"></td>
-                <td>${item.name}</td>
-                <td>${code}</td>
-                <td class="${statusClass}">${statusText}</td>
-                <td>${borrower}</td>
-                <td>${date}</td>
-            </tr>
-        `;
+    <tr>
+        <td><img src="${item.img}" class="item-img"></td>
+        <td>${item.name}</td>
+        <td>${code}</td>
+        <td>${code}</td> <!-- 🔥 เลขครุภัณฑ์ -->
+        <td class="${statusClass}">${statusText}</td>
+        <td>${borrower}</td> <!-- 🔥 หน่วยงาน -->
+        <td>${date}</td> <!-- 🔥 วันที่ยืม -->
+        <td>-</td> <!-- 🔥 วันที่คืน (ยังไม่มี) -->
+    </tr>
+`;
+
     });
 }
 

@@ -221,23 +221,47 @@
         <div class="topbar">
             รายการอุปกรณ์
         </div>
+<!-- DASHBOARD -->
+<div class="stats">
+    <div class="stat-card">
+        <h3 id="totalItem">0</h3>
+        <p>อุปกรณ์ทั้งหมด</p>
+    </div>
 
-        <!-- SEARCH -->
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="ค้นหาอุปกรณ์..." onkeyup="searchItem()">
-            <div class="search-icon">🔍</div>
-        </div>
+    <div class="stat-card">
+        <h3 id="borrowItem">0</h3>
+        <p>กำลังถูกยืม</p>
+    </div>
 
+    <div class="stat-card">
+        <h3 id="freeItem">0</h3>
+        <p>ว่าง</p>
+    </div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-box">
+    <input type="text" id="searchInput" placeholder="ค้นหาอุปกรณ์..." onkeyup="searchItem()">
+    <div class="search-icon">
+        <i class="fa-solid fa-search"></i>
+    </div>
+</div>
         <table>
 
             <thead>
                 <tr>
-                    <th>อุปกรณ์</th>
-                    <th>ชื่อ</th>
-                    <th>รหัสอุปกรณ์</th>
-                    <th>สถานะ</th>
-                    <th>ชื่อผู้ยืม</th>
-                    <th>วันที่</th>
+                    <table>
+                        <tr>
+                            <th>รูปภาพ</th>
+                            <th>รายชื่ออุปกรณ์</th>
+                            <th>รหัส</th>
+                            <th>เลขครุภัณฑ์</th>
+                            <th>สถานะ</th>
+                            <th>หน่วยงาน</th>
+                            <th>วันที่ยืม</th>
+                            <th>วันที่คืน</th>
+                        </tr>
+
                 </tr>
             </thead>
 
