@@ -84,18 +84,15 @@
                 <h3 id="totalCount">0</h3>
                 <p>อุปกรณ์ทั้งหมด</p>
             </div>
-
             <div class="stat-card">
                 <h3 id="borrowCount">0</h3>
                 <p>กำลังถูกยืม</p>
             </div>
-
             <div class="stat-card">
                 <h3 id="freeCount">0</h3>
                 <p>อุปกรณ์ว่าง</p>
             </div>
         </div>
-
         <!-- ✅ ย้าย Menu มาไว้ตรงนี้ -->
         <h3 class="menu-title">Menu</h3>
 
@@ -106,8 +103,7 @@
                 <span>ยืมอุปกรณ์</span>
             </button>
 
-            <button class="card-btn" onclick="showPage('return')">
-                <i class="fa-solid fa-rotate-left"></i>
+            <button class="card-btn" onclick="showPage('adminLogin')"> <i class="fa-solid fa-rotate-left"></i>
                 <span>คืนอุปกรณ์</span>
             </button>
 
@@ -132,60 +128,75 @@
 
     <!-- BORROW -->
     <div id="borrow" class="page">
+    <div class="topbar">ยืมอุปกรณ์</div>
 
-        <div class="topbar">
-            ยืมอุปกรณ์
+    <div class="borrow-container">
+        <label style="display: block; text-align: left; margin-bottom: 5px;">วันที่ยืม:</label>
+        <input type="date" id="borrowDate">
+
+        <label style="display: block; text-align: left; margin-bottom: 5px; margin-top: 10px;">วันที่คืน:</label>
+        <input type="date" id="returnDate">
+
+        <label style="display: block; text-align: left; margin-bottom: 5px; margin-top: 10px;">เลือกอุปกรณ์:</label>
+        <select id="item" onchange="updatePreview()">
+            <option value="" disabled selected>--- กรุณาเลือกอุปกรณ์ ---</option>
+            
+            <optgroup label="เครื่องวัดความสว่างของแสง">
+                <option value="เครื่องวัดความสว่างของแสง - T.016397">เครื่องวัดความสว่างของแสง - T.016397</option>
+                <option value="เครื่องวัดความสว่างของแสง - T.016398">เครื่องวัดความสว่างของแสง - T.016398</option>
+                <option value="เครื่องวัดความสว่างของแสง - T.016399">เครื่องวัดความสว่างของแสง - T.016399</option>
+                <option value="เครื่องวัดความสว่างของแสง - T.016427">เครื่องวัดความสว่างของแสง - T.016427</option>
+                <option value="เครื่องวัดความสว่างของแสง - T.016431">เครื่องวัดความสว่างของแสง - T.016431</option>
+                <option value="เครื่องวัดความสว่างของแสง - T.016437">เครื่องวัดความสว่างของแสง - T.016437</option>
+                <option value="เครื่องวัดความสว่างของแสง - T.016454">เครื่องวัดความสว่างของแสง - T.016454</option>
+                <option value="เครื่องวัดความสว่างของแสง - T.016478">เครื่องวัดความสว่าง of แสง - T.016478</option>
+                <option value="เครื่องวัดความสว่างของแสง - T.016484">เครื่องวัดความสว่าง of แสง - T.016484</option>
+                <option value="เครื่องวัดความสว่างของแสง - T.016488">เครื่องวัดความสว่าง of แสง - T.016488</option>
+            </optgroup>
+            <optgroup label="เครื่องวัดอุณหภูมิและความชื้น">
+                <option value="เครื่องวัดอุณหภูมิและความชื้น - AM.36971">เครื่องวัดอุณหภูมิและความชื้น - AM.36971</option>
+                <option value="เครื่องวัดอุณหภูมิและความชื้น - AM.36974">เครื่องวัดอุณหภูมิและความชื้น - AM.36974</option>
+                <option value="เครื่องวัดอุณหภูมิและความชื้น - AM.36975">เครื่องวัดอุณหภูมิและความชื้น - AM.36975</option>
+                <option value="เครื่องวัดอุณหภูมิและความชื้น - AM.36976">เครื่องวัดอุณหภูมิและความชื้น - AM.36976</option>
+                <option value="เครื่องวัดอุณหภูมิและความชื้น - AM.54261">เครื่องวัดอุณหภูมิและความชื้น - AM.54261</option>
+                <option value="เครื่องวัดอุณหภูมิและความชื้น - AM.54262">เครื่องวัดอุณหภูมิและความชื้น - AM.54262</option>
+                <option value="เครื่องวัดอุณหภูมิและความชื้น - AM.57878">เครื่องวัดอุณหภูมิและความชื้น - AM.57878</option>
+                <option value="เครื่องวัดอุณหภูมิและความชื้น - AM.57879">เครื่องวัดอุณหภูมิและความชื้น - AM.57879</option>
+                <option value="เครื่องวัดอุณหภูมิและความชื้น - AM.57881">เครื่องวัดอุณหภูมิและความชื้น - AM.57881</option>
+                <option value="เครื่องวัดอุณหภูมิและความชื้น - AM.87874">เครื่องวัดอุณหภูมิและความชื้น - AM.87874</option>
+            </optgroup>
+            <optgroup label="เครื่องวัดความเข้มแสงอาทิตย์">
+                <option value="เครื่องวัดความเข้มแสงอาทิตย์ - 49327">เครื่องวัดความเข้มแสงอาทิตย์ - 49327</option>
+                <option value="เครื่องบันทึกอ่านข้อมูล - HV24B0107563">เครื่องวัดความเข้มแสงอาทิตย์ - HV24B0107563</option>
+            </optgroup>
+        </select>
+
+        <div class="preview-box">
+            <img id="previewImg" src=""> 
         </div>
 
-        <div class="borrow-container">
+        <div class="item-info">
+            <p id="itemName"><strong>ชื่อ:</strong> -</p>
+            <p id="itemCode"><strong>รหัส:</strong> -</p>
+            <p id="itemStatus" class="">สถานะ: -</p>
+        </div>
 
-            <input type="text" id="borrowName" placeholder="ชื่อผู้ยืม">
+        <button onclick="borrowItem()">ยืนยันการยืม</button>
+        <button class="back-btn" onclick="showPage('dashboard')">กลับหน้าหลัก</button>
+    </div>
+</div>
 
-            <!-- DATE -->
-            <input type="date" id="borrowDate">
+    <div id="adminLogin" class="page">
+        <div class="topbar">ยืนยันสิทธิ์ Admin</div>
+        <div class="login-box" style="margin-top: 50px;">
+            <i class="fa-solid fa-lock" style="font-size: 50px; color: #ff7a00; margin-bottom: 20px;"></i>
+            <h3>เฉพาะเจ้าหน้าที่ EESH</h3>
+            <p>กรุณากรอกรหัสผ่านเพื่อดำเนินการคืนอุปกรณ์</p>
 
-            <!-- SELECT ITEM -->
-            <select id="item">
-                <optgroup label="เครื่องวัดความสว่างของแสง">
-                    <option>เครื่องวัดความสว่างของแสง - T.016397</option>
-                    <option>เครื่องวัดความสว่างของแสง - T.016398</option>
-                    <option>เครื่องวัดความสว่างของแสง - T.016399</option>
-                    <option>เครื่องวัดความสว่างของแสง - T.016427</option>
-                    <option>เครื่องวัดความสว่างของแสง - T.016431</option>
-                    <option>เครื่องวัดความสว่างของแสง - T.016437</option>
-                    <option>เครื่องวัดความสว่างของแสง - T.016454</option>
-                    <option>เครื่องวัดความสว่างของแสง - T.016478</option>
-                    <option>เครื่องวัดความสว่างของแสง - T.016484</option>
-                    <option>เครื่องวัดความสว่างของแสง - T.016488</option>
-                </optgroup>
+            <input type="password" id="adminAuthPass" placeholder="รหัสผ่าน Admin">
 
-                <optgroup label="เครื่องวัดอุณหภูมิและความชื้น">
-                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.36971</option>
-                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.36974</option>
-                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.36975</option>
-                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.36976</option>
-                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.54261</option>
-                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.54262</option>
-                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.57878</option>
-                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.57879</option>
-                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.57881</option>
-                    <option>เครื่องวัดอุณหภูมิและความชื้น - AM.87874</option>
-                </optgroup>
-            </select>
-
-            <div class="preview-box">
-                <img id="previewImg" src="เครื่องวัดความสว่างของแสง.jpg">
-            </div>
-
-            <div class="item-info">
-                <p id="itemName"><strong>ชื่อ:</strong> -</p>
-                <p id="itemCode"><strong>รหัส:</strong> -</p>
-                <p id="itemStatus" class="status-free">สถานะ: ว่าง</p>
-            </div>
-
-            <button onclick="borrowItem()">ยืม</button>
-            <button class="back-btn" onclick="showPage('dashboard')">กลับ</button>
-
+            <button onclick="checkAdminBeforeReturn()">ยืนยันรหัสผ่าน</button>
+            <button class="back-btn" onclick="showPage('dashboard')">ยกเลิก</button>
         </div>
     </div>
 
@@ -217,87 +228,75 @@
     </div>
 
     <div id="equipment" class="page">
+        <div class="topbar">รายการอุปกรณ์</div>
 
-        <div class="topbar">
-            รายการอุปกรณ์
+        <div class="stats">
+            <div class="stat-card">
+                <h3 id="eqTotalItem">0</h3>
+                <p>อุปกรณ์ทั้งหมด</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="eqBorrowItem">0</h3>
+                <p>กำลังถูกยืม</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="eqFreeItem">0</h3>
+                <p>อุปกรณ์ว่าง</p>
+            </div>
         </div>
-<!-- DASHBOARD -->
-<div class="stats">
-    <div class="stat-card">
-        <h3 id="totalItem">0</h3>
-        <p>อุปกรณ์ทั้งหมด</p>
-    </div>
 
-    <div class="stat-card">
-        <h3 id="borrowItem">0</h3>
-        <p>กำลังถูกยืม</p>
-    </div>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="ค้นหาชื่อหรือรหัสอุปกรณ์..." onkeyup="searchItem()">
+            <div class="search-icon">
+                <i class="fa-solid fa-search"></i>
+            </div>
+        </div>
 
-    <div class="stat-card">
-        <h3 id="freeItem">0</h3>
-        <p>ว่าง</p>
-    </div>
-</div>
-
-<!-- SEARCH -->
-<div class="search-box">
-    <input type="text" id="searchInput" placeholder="ค้นหาอุปกรณ์..." onkeyup="searchItem()">
-    <div class="search-icon">
-        <i class="fa-solid fa-search"></i>
-    </div>
-</div>
         <table>
-
             <thead>
                 <tr>
-                    <table>
-                        <tr>
-                            <th>รูปภาพ</th>
-                            <th>รายชื่ออุปกรณ์</th>
-                            <th>รหัส</th>
-                            <th>เลขครุภัณฑ์</th>
-                            <th>สถานะ</th>
-                            <th>หน่วยงาน</th>
-                            <th>วันที่ยืม</th>
-                            <th>วันที่คืน</th>
-                        </tr>
-
+                    <th>รูปภาพ</th>
+                    <th>รายชื่ออุปกรณ์</th>
+                    <th>รหัส</th>
+                    <th>เลขครุภัณฑ์</th>
+                    <th>สถานะ</th>
+                    <th>หน่วยงาน/ผู้ยืม</th>
+                    <th>วันที่ยืม</th>
+                    <th>วันที่คืน</th>
                 </tr>
             </thead>
-
             <tbody id="equipmentTable"></tbody>
-
         </table>
 
         <button class="back-btn" onclick="showPage('dashboard')">กลับ</button>
-
     </div>
 
     <!-- HISTORY -->
 
     <div id="history" class="page">
+    <div class="topbar">ประวัติการยืม</div>
 
-        <div class="topbar">
-            ประวัติการยืม
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>ชื่อ</th>
-                    <th>ชื่ออุปกรณ์</th>
-                    <th>รหัส</th>
-                    <th>สถานะ</th>
-                    <th>วันที่</th>
-                </tr>
-            </thead>
-            <tbody id="historyTable"></tbody>
-        </table>
-
-        <button class="back-btn" onclick="showPage('dashboard')">กลับ</button>
-
-
+    <div style="text-align: right; margin: 10px;">
+        <button onclick="clearHistory()" style="background-color: #d9534f; width: auto; padding: 10px 20px;">
+            <i class="fa-solid fa-trash-can"></i> ล้างประวัติทั้งหมด
+        </button>
     </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ชื่อ</th>
+                <th>ชื่ออุปกรณ์</th>
+                <th>รหัส</th>
+                <th>สถานะ</th>
+                <th>วันที่</th>
+            </tr>
+        </thead>
+        <tbody id="historyTable"></tbody>
+    </table>
+
+    <button class="back-btn" onclick="showPage('dashboard')">กลับ</button>
+</div>
 
     <script src="script.js"></script>
 
