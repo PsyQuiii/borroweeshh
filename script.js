@@ -202,6 +202,26 @@ function borrowItem() {
     // 6. บันทึกลง LocalStorage และอัปเดตหน้าจอ
     localStorage.setItem("borrowData", JSON.stringify(borrowData));
     localStorage.setItem("historyData", JSON.stringify(historyData));
+    fetch("https://script.google.com/macros/s/AKfycbzQKq_yPGVBZoUTn8HbzgEII_e9Lrgosd39qLN4WmVSxwTZ10hbcSOQnlW3S6lGomRy/exec", {
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: new URLSearchParams({
+        code: code,
+        name: equipmentData[code].name,
+        status: "ยืม",
+        department: departmentName,
+        borrowDate: startDate,
+        returnDate: endDate
+    })
+})
+.then(res => res.text())
+.then(data => console.log("SUCCESS:", data))
+.catch(err => console.error("ERROR:", err));
+
+
 
     showSuccessPopup("ยืมอุปกรณ์สำเร็จ!"); // แสดง Popup สำเร็จ
     updateAllStats(); // อัปเดตตัวเลขหน้า Dashboard ทันที
@@ -211,6 +231,7 @@ function borrowItem() {
         showPage('dashboard');
     }, 2000);
 }
+// 🔥 ส่งข้อมูลไป Google Sheet
 
 // ================== RETURN ==================
 
@@ -379,6 +400,9 @@ function clearHistory() {
         alert("รหัสผ่านไม่ถูกต้อง!");
     }
 }
+
+
+
 // Initialize
 document.addEventListener("DOMContentLoaded", () => {
     const itemSelect = document.getElementById("item");
