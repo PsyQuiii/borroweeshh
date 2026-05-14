@@ -28,7 +28,7 @@ const equipmentData = {
     "AM.57879": { name: "เครื่องวัดอุณหภูมิและความชื้น", asset: "6900000515", img: "img/am.57879.jpg", status: "free" },
     "AM.57881": { name: "เครื่องวัดอุณหภูมิและความชื้น", asset: "6900000516", img: "img/am.57881.jpg", status: "free" },
     "AM.57874": { name: "เครื่องวัดอุณหภูมิและความชื้น", asset: "6900000517", img: "img/am.57874.jpg", status: "free" },
-    
+
     "49327": {
         name: "เครื่องวัดความเข้มแสงอาทิตย์",
         asset: "6900001073",
@@ -86,41 +86,66 @@ function showPage(page) {
         updatePreview();
         updateBorrowOptions(); // สั่งให้ไล่เช็คของว่างทันที
     }
-    
+
 }
 
 // ================== EQUIPMENT & SEARCH ==================
 
 function renderEquipment() {
-    const tableBody = document.getElementById("equipmentTable");
-    tableBody.innerHTML = "";
+    let table = document.getElementById("equipmentTable");
+    table.innerHTML = "";
 
-    Object.keys(equipmentData).forEach(code => {
-        const data = equipmentData[code];
-        const row = document.createElement("tr");
+    let borrowData = JSON.parse(localStorage.getItem("borrowData")) || {};
 
-        // ตรวจสอบข้อมูลการยืม (ถ้ามี)
-        const isBorrowed = data.status === "borrow";
-        const borrowInfo = borrowData[code] || {};
+    let total = 0;
+    let borrowed = 0;
+
+    for (let code in equipmentData) {
+        let item = equipmentData[code];
+        let borrowInfo = borrowData[code] || {};
+
+        let isBorrowed = borrowInfo.borrower ? true : false;
+
+        total++;
+        if (isBorrowed) borrowed++;
+
+        let row = document.createElement("tr");
 
         row.innerHTML = `
-            <td><img src="${data.img}" width="50"></td>
-            <td>${data.name}</td>
-            <td>${code}</td>
-            <td>${data.asset}</td> <td>
-                <span class="${isBorrowed ? 'status-borrow' : 'status-free'}">
-                    ${isBorrowed ? 'ถูกยืม' : 'ว่าง'}
-                </span>
-            </td>
-            <td>${borrowInfo.dept || "-"}</td> <td>${borrowInfo.date || "-"}</td>
-            <td>${borrowInfo.returnDate || "-"}</td>
-        `;
-        tableBody.appendChild(row);
-    });
+        <td><img src="${item.img}" width="50"></td>
+        <td>${item.name}</td>
+        <td>${code}</td>
 
-    // อัปเดตตัวเลข Stats ในหน้านี้ด้วย (ถ้าคุณเปลี่ยน ID เป็น eqTotalItem แล้ว)
-    updateEquipmentStats();
+        <td>
+            <span class="${isBorrowed ? 'status-borrow' : 'status-free'}">
+                ${isBorrowed ? 'ถูกยืม' : 'ว่าง'}
+            </span>
+        </td>
+
+        <td>${borrowInfo.borrower || "-"}</td>
+        <td>${borrowInfo.dept || "-"}</td>
+        <td>${borrowInfo.email || "-"}</td>
+        <td>${borrowInfo.phone || "-"}</td>
+        <td>${borrowInfo.date || "-"}</td>
+        <td>${borrowInfo.returnDate || "-"}</td>
+
+        <td>
+            ${borrowInfo.fileUrl 
+                ? `<a href="${borrowInfo.fileUrl}" target="_blank">📄 ดูไฟล์</a>`
+                : "-"
+            }
+        </td>
+        `;
+
+        table.appendChild(row);
+    }
+
+    // update stats
+    document.getElementById("eqTotalItem").innerText = total;
+    document.getElementById("eqBorrowItem").innerText = borrowed;
+    document.getElementById("eqFreeItem").innerText = total - borrowed;
 }
+
 function searchItem() {
     let input = document.getElementById("searchInput").value.toLowerCase();
     let tr = document.querySelectorAll("#equipmentTable tr");
@@ -137,7 +162,7 @@ function updatePreview() {
     const itemSelect = document.getElementById("item");
     if (!itemSelect || itemSelect.value === "") {
         // ล้างค่าถ้ายังไม่ได้เลือก
-        document.getElementById("previewImg").src = ""; 
+        document.getElementById("previewImg").src = "";
         document.getElementById("itemName").innerHTML = "<strong>ชื่อ:</strong> -";
         document.getElementById("itemCode").innerHTML = "<strong>รหัส:</strong> -";
         document.getElementById("itemStatus").innerHTML = "สถานะ: -";
@@ -160,37 +185,94 @@ function updatePreview() {
 
 function borrowItem() {
     const itemSelect = document.getElementById("item");
-    const fullValue = itemSelect.value;
-    const code = fullValue.split(" - ")[1];
+    const code = itemSelect.value.split(" - ")[1];
+
     const startDate = document.getElementById("borrowDate").value;
     const endDate = document.getElementById("returnDate").value;
 
-    // 1. ตรวจสอบว่าเลือกวันที่หรือยัง
     if (!startDate || !endDate) {
-        alert("กรุณาระบุวันที่ยืมและวันที่คืนให้ครบถ้วน");
+        alert("กรุณาระบุวันที่");
         return;
     }
 
-    // 2. ตรวจสอบสถานะอุปกรณ์
     if (equipmentData[code].status === "borrow") {
-        showErrorPopup("อุปกรณ์นี้ถูกยืมไปแล้ว");
+        alert("อุปกรณ์ถูกยืมแล้ว");
         return;
     }
 
-    // 3. ดึงชื่อหน่วยงานจากผู้ใช้ที่ Login อยู่
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffDays = (end - start) / (1000 * 60 * 60 * 24);
+
+    if (diffDays > 30) {
+        alert("❌ ยืมได้ไม่เกิน 1 เดือน");
+        return;
+    }
+
+    if (diffDays < 0) {
+        alert("❌ วันที่คืนต้องมากกว่าวันที่ยืม");
+        return;
+    }
+
     const userDetail = users.find(u => u.username === currentUser);
     const departmentName = userDetail ? userDetail.department : currentUser;
 
-    // 4. บันทึกข้อมูล
+    const formData = new FormData();
+
+    // ✅ ข้อมูลหลัก
+    formData.append("code", code);
+    formData.append("name", equipmentData[code].name);
+    formData.append("status", "ยืม");
+    formData.append("department", departmentName);
+    formData.append("borrowDate", startDate);
+    formData.append("returnDate", endDate);
+
+    // ✅ กัน user เก่าไม่มีข้อมูล
+    formData.append("email", userDetail?.email || "-");
+    formData.append("phone", userDetail?.phone || "-");
+
+    const fileInput = document.getElementById("borrowFile");
+    const file = fileInput.files[0];
+
+    // =========================
+    // 📁 มีไฟล์
+    // =========================
+    if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function () {
+            const base64 = reader.result.split(",")[1];
+
+            formData.append("fileName", file.name);
+            formData.append("fileType", file.type);
+            formData.append("fileData", base64);
+
+            sendData(formData, code); // ✅ ส่ง code ไปด้วย
+        };
+
+        reader.readAsDataURL(file);
+    } else {
+        // =========================
+        // ❌ ไม่มีไฟล์
+        // =========================
+        sendData(formData, code); // ✅ ต้องมี code
+    }
+
+    // =========================
+    // 💾 update local
+    // =========================
     equipmentData[code].status = "borrow";
+
     borrowData[code] = {
-        name: currentUser,      // เก็บ ID ไว้สำหรับระบบ
-        dept: departmentName,   // เก็บชื่อหน่วยงานไว้แสดงในตาราง
+        borrower: currentUser,
+        dept: departmentName,
+        email: userDetail?.email || "-",
+        phone: userDetail?.phone || "-",
+        fileUrl: "", // จะถูกอัปเดตทีหลัง
         date: startDate,
         returnDate: endDate
     };
 
-    // 5. เพิ่มลงประวัติ
     historyData.push({
         borrower: departmentName,
         itemName: equipmentData[code].name,
@@ -199,56 +281,89 @@ function borrowItem() {
         date: startDate
     });
 
-    // 6. บันทึกลง LocalStorage และอัปเดตหน้าจอ
     localStorage.setItem("borrowData", JSON.stringify(borrowData));
     localStorage.setItem("historyData", JSON.stringify(historyData));
-    fetch("https://script.google.com/macros/s/AKfycbzQKq_yPGVBZoUTn8HbzgEII_e9Lrgosd39qLN4WmVSxwTZ10hbcSOQnlW3S6lGomRy/exec", {
-    method: "POST",
-    mode: "no-cors",
-    headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: new URLSearchParams({
-        code: code,
-        name: equipmentData[code].name,
-        status: "ยืม",
-        department: departmentName,
-        borrowDate: startDate,
-        returnDate: endDate
-    })
-})
-.then(res => res.text())
-.then(data => console.log("SUCCESS:", data))
-.catch(err => console.error("ERROR:", err));
 
+    showSuccessPopup("ยืมอุปกรณ์สำเร็จ!");
+    updateAllStats();
 
-
-    showSuccessPopup("ยืมอุปกรณ์สำเร็จ!"); // แสดง Popup สำเร็จ
-    updateAllStats(); // อัปเดตตัวเลขหน้า Dashboard ทันที
-
-    // หลังจาก 2 วินาที ให้กลับไปหน้า Dashboard
-    setTimeout(() => {
-        showPage('dashboard');
-    }, 2000);
+    setTimeout(() => showPage('dashboard'), 1500);
 }
-// 🔥 ส่งข้อมูลไป Google Sheet
+function sendData(formData, code = null) {
+    fetch("https://script.google.com/macros/s/AKfycbzQKq_yPGVBZoUTn8HbzgEII_e9Lrgosd39qLN4WmVSxwTZ10hbcSOQnlW3S6lGomRy/exec", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.text())
+    .then(url => {
+        console.log("FILE URL:", url);
+
+        // ✅ เอา URL มาใส่ใน borrowData
+        if (code && borrowData[code]) {
+            borrowData[code].fileUrl = url;
+            localStorage.setItem("borrowData", JSON.stringify(borrowData));
+
+            // 🔥 อัปเดตตารางทันที
+            if (typeof renderEquipment === "function") {
+                renderEquipment();
+            }
+        }
+    })
+    .catch(err => console.error("ERROR:", err));
+}
+
 
 // ================== RETURN ==================
 
 function returnItem() {
-    let code = document.getElementById("returnItem").value;
-    let endDate = document.getElementById("returnEndDate").value;
+    const itemSelect = document.getElementById("returnItem");
+    const code = itemSelect.value; // ✅ แก้ตรงนี้
 
-    if (!code || !endDate) return alert("กรุณากรอกข้อมูลให้ครบ");
+    if (!code) {
+        alert("กรุณาเลือกอุปกรณ์");
+        return;
+    }
 
-    equipmentData[code].status = "free";
-    historyData.push({ borrower: borrowData[code].name, itemName: equipmentData[code].name, code: code, status: "คืน", date: endDate });
+    if (equipmentData[code].status !== "borrow") {
+        alert("❌ อุปกรณ์นี้ไม่ได้ถูกยืม");
+        return;
+    }
+
+    const userDetail = users.find(u => u.username === currentUser);
+    const departmentName = userDetail ? userDetail.department : currentUser;
+
+    const formData = new FormData();
+
+    formData.append("code", code);
+    formData.append("name", equipmentData[code].name);
+    formData.append("status", "คืน");
+    formData.append("department", departmentName);
+
+    sendData(formData);
+
+    equipmentData[code].status = "free"; // 🔥 แก้ด้วย (เดิมคุณใช้ available)
+
     delete borrowData[code];
 
-    saveAndRefresh();
-    showSuccessPopup("คืนสำเร็จ");
-    loadBorrowedItems();
+    historyData.push({
+        borrower: departmentName,
+        itemName: equipmentData[code].name,
+        code: code,
+        status: "คืน",
+        date: new Date().toISOString().split("T")[0]
+    });
+
+    localStorage.setItem("borrowData", JSON.stringify(borrowData));
+    localStorage.setItem("historyData", JSON.stringify(historyData));
+
+    showSuccessPopup("คืนอุปกรณ์สำเร็จ!");
+    updateAllStats();
+
+    setTimeout(() => showPage('dashboard'), 1500);
 }
+
+
+
 
 function loadBorrowedItems() {
     let select = document.getElementById("returnItem");
@@ -264,12 +379,24 @@ function loadBorrowedItems() {
 // ================== AUTH & UTILS ==================
 
 function login() {
-    let user = users.find(u => u.username === document.getElementById("loginUsername").value && u.password === document.getElementById("loginPassword").value);
-    if (!user) return alert("Login ล้มเหลว");
+    let username = document.getElementById("loginUsername").value.trim();
+    let password = document.getElementById("loginPassword").value.trim();
+
+    let user = users.find(u => 
+        u.username.trim() === username &&
+        u.password.trim() === password
+    );
+
+    if (!user) {
+        console.log("DEBUG USERS:", users);
+        return alert("Login ล้มเหลว");
+    }
+
     currentUser = user.username;
     localStorage.setItem("currentUser", currentUser);
     showPage("dashboard");
 }
+
 
 function logout() {
     localStorage.removeItem("currentUser");
@@ -279,14 +406,50 @@ function logout() {
 
 function register() {
     let username = document.getElementById("regUsername").value;
+    let email = document.getElementById("regEmail").value;
+    let phone = document.getElementById("regPhone").value;
     let dept = document.getElementById("regDepartment").value;
     let pass = document.getElementById("regPassword").value;
-    if (users.find(u => u.username === username)) return alert("มีชื่อนี้แล้ว");
-    users.push({ username, department: dept, password: pass });
+
+    // 🔍 ตรวจสอบข้อมูล
+    if (!username || !email || !phone || !dept || !pass) {
+        alert("กรุณากรอกข้อมูลให้ครบ");
+        return;
+    }
+
+    // 🔍 ตรวจสอบ email format เบื้องต้น
+    if (!email.includes("@")) {
+        alert("รูปแบบอีเมลไม่ถูกต้อง");
+        return;
+    }
+
+    // 🔍 ตรวจสอบเบอร์ (ตัวเลข 10 หลัก)
+    if (!/^[0-9]{10}$/.test(phone)) {
+        alert("เบอร์โทรต้องเป็นตัวเลข 10 หลัก");
+        return;
+    }
+
+    // 🔍 เช็ค username ซ้ำ
+    if (users.find(u => u.username === username)) {
+        alert("มีชื่อนี้แล้ว");
+        return;
+    }
+
+    // ✅ บันทึกข้อมูล
+    users.push({
+        username: username,
+        email: email,
+        phone: phone,
+        department: dept,
+        password: pass
+    });
+
     localStorage.setItem("users", JSON.stringify(users));
+
     alert("สมัครสำเร็จ");
     showPage("login");
 }
+
 
 function saveAndRefresh() {
     localStorage.setItem("borrowData", JSON.stringify(borrowData));
@@ -330,7 +493,7 @@ function openImageModal(src, title) {
     const modal = document.getElementById("imageModal");
     const modalImg = document.getElementById("imgExpanded");
     const captionText = document.getElementById("caption");
-    
+
     modal.style.display = "block";
     modalImg.src = src;
     captionText.innerHTML = title;
@@ -374,23 +537,23 @@ function updateBorrowOptions() {
 function clearHistory() {
     // 1. ถามเพื่อความแน่ใจก่อนลบ
     if (confirm("คุณต้องการล้างประวัติการยืมทั้งหมดใช่หรือไม่? (ข้อมูลจะหายถาวร)")) {
-        
+
         // 2. ล้างข้อมูลในตัวแปร
         historyData = [];
-        
+
         // 3. อัปเดตลง LocalStorage
         localStorage.setItem("historyData", JSON.stringify(historyData));
-        
+
         // 4. สั่งวาดตารางใหม่ (จะเป็นตารางว่าง)
         renderHistory();
-        
+
         // 5. แจ้งเตือนสำเร็จ
         showSuccessPopup("ล้างประวัติเรียบร้อยแล้ว");
     }
 }
 function clearHistory() {
     const password = prompt("กรุณากรอกรหัสผ่าน Admin เพื่อยืนยันการลบประวัติ:");
-    
+
     if (password === "1234") { // รหัสเดียวกับหน้าคืนของ
         historyData = [];
         localStorage.setItem("historyData", JSON.stringify(historyData));
